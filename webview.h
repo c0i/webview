@@ -1139,7 +1139,10 @@ static LRESULT CALLBACK wndproc(HWND hwnd, UINT uMsg, WPARAM wParam,
     return EmbedBrowserObject(w);
   case WM_DESTROY:
     UnEmbedBrowserObject(w);
-    PostQuitMessage(0);
+    // jimmy at 2018/04/25 start
+    //PostQuitMessage(0);
+    webview_exit(w);
+    // jimmy at 2018/04/25 end
     return TRUE;
   case WM_SIZE: {
     IWebBrowser2 *webBrowser2;
@@ -1585,8 +1588,19 @@ WEBVIEW_API void webview_dialog(struct webview *w,
   }
 }
 
-WEBVIEW_API void webview_terminate(struct webview *w) { PostQuitMessage(0); }
-WEBVIEW_API void webview_exit(struct webview *w) { OleUninitialize(); }
+WEBVIEW_API void webview_terminate(struct webview *w) {
+  // by jimmy at 2018/04/25
+#if 0  
+  // PostQuitMessage(0); 
+#else
+  if (w) {
+    DestroyWindow(w->priv.hwnd);
+  }
+#endif
+}
+WEBVIEW_API void webview_exit(struct webview *w) { 
+  OleUninitialize();
+}
 WEBVIEW_API void webview_print_log(const char *s) { OutputDebugString(s); }
 
 #endif /* WEBVIEW_WINAPI */
